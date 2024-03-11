@@ -1,0 +1,3 @@
+class TelecomCompany < ApplicationRecord
+
+end
