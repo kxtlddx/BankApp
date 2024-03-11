@@ -9,6 +9,9 @@ class TransactionsController < ApplicationController
     @transaction.user = current_user
     @transaction.status = :pending
 
+    authorize! @transaction
+
+
     if @transaction.save
       Rails.logger.error "amogus"
 
@@ -22,6 +25,8 @@ class TransactionsController < ApplicationController
 
   # PATCH/PUT /transactions/1
   def update
+    authorize! @transaction
+
     redirect_to root_path unless current_user.customer?
     if @transaction.update(transaction_params)
       redirect_to @transaction, notice: 'Transaction was successfully updated.'
@@ -31,7 +36,7 @@ class TransactionsController < ApplicationController
   end
 
   def cancel
-    redirect_to customer_path(current_user.id) unless current_user.admin?
+    authorize! @transaction
 
     @transaction = Transaction.find(params[:id])
 
