@@ -1,0 +1,13 @@
+<%= form_with(model: Transaction.new, url: transactions_path) do |form| %>
+  <div class="field">
+    <%= form.label :company_id, 'Choose a Telecom Company' %>
+    <%= form.collection_select(:company_id, @telecom_companies, :id, :name) %>
+  </div>
+
+  <div class="field">
+    <%= form.label :amount, 'Amount to Send' %>
+    <%= form.number_field :amount, in: 1..50000, step: 1 %>
+  </div>
+
+  <%= form.submit 'Send Money' %>
+<% end %>

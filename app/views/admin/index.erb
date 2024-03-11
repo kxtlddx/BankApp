@@ -1,0 +1,16 @@
+<h1>All Users</h1>
+
+<% @customers.each do |customer| %>
+  <h2><%= customer.email %></h2>
+  <h3>Transaction History</h3>
+  <ul>
+    <% customer.transactions.each do |transaction| %>
+      <li>
+        <%= transaction.amount %> to <%= transaction.telecom_company.name %> - <%= transaction.status %>
+      </li>
+      <% if transaction.pending? %>
+        <%= button_to 'Cancel Transaction', cancel_transaction_path(transaction), method: :put %>
+      <% end %>
+    <% end %>
+  </ul>
+<% end %>
