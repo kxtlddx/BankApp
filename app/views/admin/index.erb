@@ -1,12 +1,18 @@
 <h1>All Users</h1>
 
 <% @customers.each do |customer| %>
-  <h2><%= customer.email %></h2>
-  <h3>Transaction History</h3>
-  <ul>
-    <% customer.transactions.each do |transaction| %>
-      <li>
-        <%= transaction.amount %> to <%= transaction.telecom_company.name %> - <%= transaction.status %>
+  <div><%= "Имя: #{customer.first_name} Фамилия: #{customer.last_name}, Почта: #{customer.email}" %></div>
+  <button onclick="toggleTransactions('<%= customer.id %>')">Transaction History</button>
+  <ul id="transactions-<%= customer.id %>" style="display: none;">
+    <% customer.transactions.order(updated_at: :desc).each do |transaction| %>
+      <li><%= "Номер транзакции: #{transaction.id}"%>
+        <ul>
+          <li><%= "Сколько: #{transaction.amount}"%></li>
+          <li><%="Кому: #{transaction.telecom_company.name}"%></li>
+          <li><%="Статус: #{ transaction.status}"%></li>
+          <li><%="Дата создания: #{ transaction.created_at}"%></li>
+          <li><%="Дата проведения: #{ transaction.updated_at}"%></li>
+        </ul>
       </li>
       <% if transaction.pending? %>
         <%= button_to 'Cancel Transaction', cancel_transaction_path(transaction), method: :put %>
@@ -14,3 +20,14 @@
     <% end %>
   </ul>
 <% end %>
+
+<script>
+    function toggleTransactions(id) {
+        var element = document.getElementById('transactions-' + id);
+        if (element.style.display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+</script>

@@ -1,7 +1,9 @@
+<div><%= "Имя: #{@customer.first_name} Фамилия: #{@customer.last_name}" %></div>
+
 <%= form_with(model: Transaction.new, url: transactions_path) do |form| %>
   <div class="field">
-    <%= form.label :company_id, 'Choose a Telecom Company' %>
-    <%= form.collection_select(:company_id, @telecom_companies, :id, :name) %>
+    <%= form.label :telecom_company_id, 'Choose a Telecom Company' %>
+    <%= form.collection_select(:telecom_company_id, @telecom_companies, :id, :name) %>
   </div>
 
   <div class="field">
@@ -11,3 +13,31 @@
 
   <%= form.submit 'Send Money' %>
 <% end %>
+
+
+<button onclick="toggleTransactions('<%= @customer.id %>')">Transaction History</button>
+<ul id="transactions-<%= @customer.id %>" style="display: none;">
+  <% @customer.transactions.order(updated_at: :desc).each do |transaction| %>
+    <li><%= "Номер транзакции: #{transaction.id}"%>
+      <ul>
+        <li><%= "Сколько: #{transaction.amount}"%></li>
+        <li><%="Кому: #{transaction.telecom_company.name}"%></li>
+        <li><%="Статус: #{ transaction.status}"%></li>
+        <li><%="Дата создания: #{ transaction.created_at}"%></li>
+        <li><%="Дата проведения: #{ transaction.updated_at}"%></li>
+      </ul>
+    </li>
+  <% end %>
+</ul>
+
+
+<script>
+    function toggleTransactions(id) {
+        var element = document.getElementById('transactions-' + id);
+        if (element.style.display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+</script>

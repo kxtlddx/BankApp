@@ -4,20 +4,25 @@ class TransactionsController < ApplicationController
 
   # POST /transactions
   def create
+    redirect_to root_path unless current_user.customer?
     @transaction = Transaction.new(transaction_params)
     @transaction.user = current_user
+    @transaction.status = :pending
 
     if @transaction.save
-      TransactionFailureJob.set(wait: 5.seconds).perform_later(@transaction)
-      redirect_to @transaction, notice: 'Transaction was successfully created.'
+      Rails.logger.error "amogus"
+
+      TransactionFailureJob.set(wait: 30.seconds).perform_later(@transaction)
+      redirect_to customer_path(current_user.id), notice: 'Transaction was successfully created.'
     else
-      @transaction.status = :failed
-      redirect_back(fallback_location: root_path)
+      Rails.logger.error @transaction.errors.full_messages.join("\n")
+      redirect_back(fallback_location: customer_path)
     end
   end
 
   # PATCH/PUT /transactions/1
   def update
+    redirect_to root_path unless current_user.customer?
     if @transaction.update(transaction_params)
       redirect_to @transaction, notice: 'Transaction was successfully updated.'
     else
@@ -26,6 +31,8 @@ class TransactionsController < ApplicationController
   end
 
   def cancel
+    redirect_to customer_path(current_user.id) unless current_user.admin?
+
     @transaction = Transaction.find(params[:id])
 
     if @transaction.pending?
@@ -35,7 +42,6 @@ class TransactionsController < ApplicationController
       flash[:alert] = 'Only pending transactions can be cancelled.'
     end
 
-    redirect_back(fallback_location: root_path)
   end
 
   private
@@ -46,7 +52,7 @@ class TransactionsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def transaction_params
-    params.require(:transaction).permit(:telecom_company_id, :amount)
+    params.require(:transaction).permit(:user_id, :telecom_company_id, :amount)
   end
 
 end
